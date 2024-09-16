@@ -11,7 +11,7 @@ const Sidebar = ({ users, selectUser, selectedUser, onSearch, onFilterChange }) 
                 <FaComments className="text-white w-8 h-8 cursor-pointer transition duration-300 ease-in-out hover:text-pink-500" title='Mensajes' />
                 <FaUserFriends className="text-white w-8 h-8 cursor-pointer transition duration-300 ease-in-out hover:text-pink-500" title='Usuarios' />
                 <FaSignOutAlt
-                    onClick={() => logout({ returnTo: window.location.origin })}
+                    onClick={() => logout({ returnTo: '/' })}
                     title="Cerrar sesión"
                     className="text-white w-8 h-8 cursor-pointer transition duration-300 ease-in-out hover:text-pink-500 mt-auto"
                 />
