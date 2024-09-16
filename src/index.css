@@ -2,6 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Estilo para el scroll-bar */
+::-webkit-scrollbar {
+  width: 8px; /* Ancho de la barra */
+  height: 8px; /* Altura de la barra si es horizontal */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Color de fondo de la barra de desplazamiento */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1; /* Color del "thumb" (la parte que se desplaza) */
+  border-radius: 10px;
+  border: 2px solid #f1f1f1; /* Bordes del thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #999; /* Color del thumb al pasar el cursor */
+}
+
+/* Para Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1; /* thumb color / track color */
+}
+
 html, body {
   margin: 0;
   padding: 0;

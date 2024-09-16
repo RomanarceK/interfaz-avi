@@ -18,7 +18,7 @@ const App = () => {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="text-center">
-          <div className="loader ease-linear rounded-full border-4 border-t-4 border-blue-400 h-12 w-12 mb-4 animate-spin"></div>
+          <div className="loader ease-linear rounded-full border-4 border-t-4 border-blue-400 h-12 w-12 m-auto animate-spin"></div>
           <p className="text-xl font-semibold text-gray-700">Cargando...</p>
         </div>
       </div>
