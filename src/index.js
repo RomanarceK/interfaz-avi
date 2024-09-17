@@ -15,9 +15,11 @@ root.render(
     <Auth0Provider
       domain={domain}
       clientId={clientId}
-      authorizationParams={{ redirect_uri: redirectUri }}
+      authorizationParams={{
+        redirect_uri: redirectUri,
+        audience: audience,
+      }}
       scope="openid profile email"
-      audience={audience}
     >
       <App />
     </Auth0Provider>

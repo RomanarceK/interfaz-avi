@@ -3,6 +3,7 @@ import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
+import NoAuthMessage from './NoAuthMessage';
 
 function useMediaQuery(query) {
   const [matches, setMatches] = useState(false);
@@ -21,7 +22,7 @@ function useMediaQuery(query) {
 }
 
 const ChatApp = () => {
-  const { isAuthenticated, isLoading } = useAuth0();
+  const { user, getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
   const [conversations, setConversations] = useState([]);
   const [filteredConversations, setFilteredConversations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,13 +32,72 @@ const ChatApp = () => {
   const isMobile = useMediaQuery('(max-width: 640px)');
 
   useEffect(() => {
-    if (isAuthenticated) {
-      const fetchConversations = async () => {
+    if (isAuthenticated && user) {
+      const fetchUserAndConversations = async () => {
         setLoading(true);
         try {
-          const response = await axios.get('https://bbbexpresswhatsappsender.onrender.com/get-conversations');
-          setConversations(response.data);
-          setFilteredConversations(response.data);
+          const token = await getAccessTokenSilently();
+          let userResponse;
+  
+          try {
+            // Paso 1: Verificar si el usuario ya existe en la base de datos
+            userResponse = await axios.get(`https://bbbexpresswhatsappsender.onrender.com/api/users/get-user/${user.sub}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              }
+            });
+            console.log('Usuario encontrado:', userResponse.data);
+          } catch (error) {
+            // Si el error es 404, significa que el usuario no existe
+            if (error.response && error.response.status === 404) {
+              console.log('Usuario no encontrado, creando un nuevo usuario...');
+      
+              // Paso 2: Si no existe, intentar crear el usuario
+              try {
+                userResponse = await axios.post('https://bbbexpresswhatsappsender.onrender.com/api/users/create-user', {
+                  user_id: user.sub,
+                  username: user.name,
+                  email: user.email,
+                  gender: user.gender,
+                  birthday: user.birthdate,
+                  picture: user.picture
+                }, {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+                console.log('Usuario creado:', userResponse.data);
+              } catch (createError) {
+                // Manejar el caso donde el usuario ya existe (código 409)
+                if (createError.response && createError.response.status === 409) {
+                  console.log('Usuario ya existe en la base de datos, continuando con el flujo...');
+                  // No interrumpir el flujo, continuar para obtener las conversaciones
+                } else {
+                  // Si hay otro error, manejarlo
+                  console.error('Error al crear el usuario:', createError);
+                  setError('Error al crear el usuario');
+                  setLoading(false);
+                  return;
+                }
+              }
+            } else {
+              // Si hay otro error que no sea 404, manejarlo
+              console.error('Error al verificar el usuario:', error);
+              setError('Error al verificar el usuario');
+              setLoading(false);
+              return;
+            }
+          }
+  
+          // Paso 3: Recuperar las conversaciones del usuario
+          const conversationsResponse = await axios.get('https://bbbexpresswhatsappsender.onrender.com/api/conversations/get-conversations', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+  
+          setConversations(conversationsResponse.data);
+          setFilteredConversations(conversationsResponse.data);
           setLoading(false);
         } catch (error) {
           console.error('Error al recuperar conversaciones:', error);
@@ -46,9 +106,11 @@ const ChatApp = () => {
         }
       };
   
-      fetchConversations();
+      fetchUserAndConversations();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user, getAccessTokenSilently]);
+  
+  
 
   useEffect(() => {
     // Filtrar conversaciones cuando cambia el término de búsqueda
@@ -76,6 +138,12 @@ const ChatApp = () => {
           {error}
         </p>
       </div>
+    );
+  }
+
+  if (conversations.length === 0) {
+    return (
+      <NoAuthMessage/>
     );
   }
 
