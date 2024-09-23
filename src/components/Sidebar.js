@@ -41,7 +41,7 @@ const Sidebar = ({ users, selectUser, selectedUser, onSearch, onFilterChange }) 
             </div>
             <div className="flex-1 bg-indigo-900 text-white flex flex-col h-full">
                 {/* Ajuste del ancho del sombreado y borde */}
-                <div className="p-5 shadow-lg bg-indigo-900 w-full border-b border-gray-900">
+                <div className="p-5 shadow-lg bg-indigo-900 w-full border-b border-gray-900" onClick={() => window.open('https://flyup.ar', '_blank')}>
                     <img src="https://flyup.ar/img/Logo-W.png" alt="Logo" className="w-1/2" />
                 </div>
                 
