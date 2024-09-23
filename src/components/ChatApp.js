@@ -71,7 +71,6 @@ const ChatApp = () => {
                 // Manejar el caso donde el usuario ya existe (código 409)
                 if (createError.response && createError.response.status === 409) {
                   console.log('Usuario ya existe en la base de datos, continuando con el flujo...');
-                  // No interrumpir el flujo, continuar para obtener las conversaciones
                 } else {
                   // Si hay otro error, manejarlo
                   console.error('Error al crear el usuario:', createError);

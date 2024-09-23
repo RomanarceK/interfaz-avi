@@ -2,7 +2,7 @@ import React from 'react';
 
 const Filters = ({ onSearch }) => {
     return (
-        <div className="p-4">
+        <div className="pr-4 pl-2 mt-2 border-b border-gray-400/50">
             <input
                 type="text"
                 placeholder="Buscar por nombre..."

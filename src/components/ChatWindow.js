@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 const ChatWindow = ({ selectedUser, onBack }) => {
     const messagesEndRef = useRef(null);
@@ -12,7 +13,7 @@ const ChatWindow = ({ selectedUser, onBack }) => {
     return (
         <div className="flex-1 flex flex-col bg-gray-100 h-full">
             {/* Header fijo con el nombre del usuario y el botón Volver */}
-            <div className="p-5 bg-indigo-900 text-white border-b border-indigo-700 font-bold flex justify-between sticky top-0 z-10">
+            <div className="p-5 bg-indigo-900 text-white border-l border-gray-900 font-bold flex justify-between sticky top-0 z-10">
                 {selectedUser ? `${selectedUser.username}` : 'Seleccione un usuario'}
                 {onBack && (
                     <button className="text-white" onClick={onBack}>
@@ -41,7 +42,7 @@ const ChatWindow = ({ selectedUser, onBack }) => {
                                         <p className={`text-sm font-semibold ${isAssistant ? 'text-blue-400' : 'text-blue-400'}`}>
                                             {isAssistant ? 'AVI:' : selectedUser.username + ':'}
                                         </p>
-                                        <p>{content}</p>
+                                        <ReactMarkdown>{content}</ReactMarkdown>
                                     </div>
                                 </div>
                             </div>
