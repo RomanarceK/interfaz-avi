@@ -6,7 +6,7 @@ const NoAuthMessage = () => {
             {/* Contenedor para el logo en la esquina superior izquierda */}
             <div className="absolute top-0 left-0 p-8">
                 <div className="hover:cursor-pointer" onClick={() => window.open('https://flyup.ar', '_blank')}>
-                <img src="https://flyup.ar/img/Logo-W.png" alt="Logo" className="w-64" /> {/* Puedes ajustar el tamaño del logo con w-32 o el valor que prefieras */}
+                <img src="https://flyup.ar/img/Logo-W.png" alt="Logo" className="w-32" />
                 </div>
             </div>
 

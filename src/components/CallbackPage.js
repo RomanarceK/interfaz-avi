@@ -11,7 +11,6 @@ const CallbackPage = () => {
       try {
         // Maneja el código de autorización y completa el flujo de autenticación
         await handleRedirectCallback();
-        // Redirige a la página principal u otra después del login
         navigate('/');
       } catch (error) {
         console.error('Error al procesar el callback:', error);

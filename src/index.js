@@ -21,7 +21,7 @@ root.render(
       }}
       scope="openid profile email"
     >
-      <App />
+    <App />
     </Auth0Provider>
   </React.StrictMode>
 );

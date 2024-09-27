@@ -40,7 +40,7 @@ const ChatApp = () => {
           let userResponse;
   
           try {
-            // Paso 1: Verificar si el usuario ya existe en la base de datos
+            // Verificar si el usuario ya existe en la base de datos
             userResponse = await axios.get(`https://bbbexpresswhatsappsender.onrender.com/api/users/get-user/${user.sub}`, {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -54,25 +54,16 @@ const ChatApp = () => {
       
               // Paso 2: Si no existe, intentar crear el usuario
               try {
-                userResponse = await axios.post('https://bbbexpresswhatsappsender.onrender.com/api/users/create-user', {
-                  user_id: user.sub,
-                  username: user.name,
-                  email: user.email,
-                  gender: user.gender,
-                  birthday: user.birthdate,
-                  picture: user.picture
-                }, {
+                userResponse = await axios.post('https://bbbexpresswhatsappsender.onrender.com/api/users/create-user', user, {
                   headers: {
                     Authorization: `Bearer ${token}`,
                   },
                 });
                 console.log('Usuario creado:', userResponse.data);
               } catch (createError) {
-                // Manejar el caso donde el usuario ya existe (código 409)
                 if (createError.response && createError.response.status === 409) {
                   console.log('Usuario ya existe en la base de datos, continuando con el flujo...');
                 } else {
-                  // Si hay otro error, manejarlo
                   console.error('Error al crear el usuario:', createError);
                   setError('Error al crear el usuario');
                   setLoading(false);
@@ -80,7 +71,6 @@ const ChatApp = () => {
                 }
               }
             } else {
-              // Si hay otro error que no sea 404, manejarlo
               console.error('Error al verificar el usuario:', error);
               setError('Error al verificar el usuario');
               setLoading(false);
@@ -132,8 +122,8 @@ const ChatApp = () => {
   
   if (error) {
     return (
-      <div className="flex justify-center items-center h-full">
-        <p className="text-lg font-semibold text-red-600">
+      <div className="flex justify-center items-center h-screen w-full">
+        <p className="text-lg text-center font-semibold text-red-600">
           {error}
         </p>
       </div>
