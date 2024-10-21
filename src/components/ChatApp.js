@@ -4,6 +4,9 @@ import ChatWindow from './ChatWindow';
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 import NoAuthMessage from './NoAuthMessage';
+import { io } from 'socket.io-client';
+
+const socket = io('https://bbbexpresswhatsappsender.onrender.com');
 
 function useMediaQuery(query) {
   const [matches, setMatches] = useState(false);
@@ -28,6 +31,7 @@ const ChatApp = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedConversation, setSelectedConversation] = useState(null);
+  const [unreadCounts, setUnreadCounts] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const isMobile = useMediaQuery('(max-width: 640px)');
 
@@ -37,74 +41,132 @@ const ChatApp = () => {
         setLoading(true);
         try {
           const token = await getAccessTokenSilently();
-          let userResponse;
-  
-          try {
-            // Verificar si el usuario ya existe en la base de datos
-            userResponse = await axios.get(`https://bbbexpresswhatsappsender.onrender.com/api/users/get-user/${user.sub}`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              }
-            });
-            console.log('Usuario encontrado:', userResponse.data);
-          } catch (error) {
-            // Si el error es 404, significa que el usuario no existe
-            if (error.response && error.response.status === 404) {
-              console.log('Usuario no encontrado, creando un nuevo usuario...');
-      
-              // Paso 2: Si no existe, intentar crear el usuario
-              try {
-                userResponse = await axios.post('https://bbbexpresswhatsappsender.onrender.com/api/users/create-user', user, {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                });
-                console.log('Usuario creado:', userResponse.data);
-              } catch (createError) {
-                if (createError.response && createError.response.status === 409) {
-                  console.log('Usuario ya existe en la base de datos, continuando con el flujo...');
-                } else {
-                  console.error('Error al crear el usuario:', createError);
-                  setError('Error al crear el usuario');
-                  setLoading(false);
-                  return;
-                }
-              }
-            } else {
-              console.error('Error al verificar el usuario:', error);
-              setError('Error al verificar el usuario');
-              setLoading(false);
-              return;
-            }
-          }
-  
-          // Paso 3: Recuperar las conversaciones del usuario
+
+          // Recuperar las conversaciones del usuario
           const conversationsResponse = await axios.get('https://bbbexpresswhatsappsender.onrender.com/api/conversations/get-conversations', {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-  
-          setConversations(conversationsResponse.data);
-          setFilteredConversations(conversationsResponse.data);
+
+          const conversationsData = conversationsResponse.data;
+          setConversations(conversationsData);
+          setFilteredConversations(conversationsData);
+
+          const userResponse = await axios.get(`https://bbbexpresswhatsappsender.onrender.com/api/users/get-user/${user.sub}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            }
+          });
+
+          const userData = userResponse?.data;
+
+          // Obtener los IDs de las conversaciones
+          const conversationIds = conversationsData.map(conv => conv._id);
+
+          // Recuperar los unreadCounts para las conversaciones
+          const unreadCountsResponse = await axios.post('https://bbbexpresswhatsappsender.onrender.com/api/conversations/unread-messages', {
+            userId: user.sub,
+            conversationIds,
+            client: userData.client,
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          // Actualizar el estado con los unreadCounts
+          setUnreadCounts(unreadCountsResponse.data.unreadCounts);
           setLoading(false);
         } catch (error) {
-          console.error('Error al recuperar conversaciones:', error);
-          setError('Error al recuperar conversaciones');
+          console.error('Error al recuperar conversaciones o mensajes no leídos:', error);
+          setError('Error al recuperar conversaciones o mensajes no leídos');
           setLoading(false);
         }
       };
-  
+
       fetchUserAndConversations();
     }
   }, [isAuthenticated, user, getAccessTokenSilently]);
-  
-  
+
+
+  useEffect(() => {
+    socket.on('connect', () => {
+      console.log('Conectado al servidor Socket.IO');
+    });
+
+    socket.on('newMessage', async (data) => {
+        const token = await getAccessTokenSilently();
+
+        setConversations((prevConversations) => {
+          return prevConversations.map((conversation) => {
+              if (conversation._id === data.conversationId) {
+                const updatedContent = [...conversation.content, ...data.messages];
+                
+                return {
+                    ...conversation,
+                    content: updatedContent
+                };
+              }
+              return conversation;
+          });
+        });
+
+        setFilteredConversations((prevConversations) => {
+          return prevConversations.map((conversation) => {
+            if (conversation._id === data.conversationId) {
+              const updatedContent = [...conversation.content, ...data.messages];
+              
+              return {
+                  ...conversation,
+                  content: updatedContent
+              };
+            }
+            return conversation;
+        });
+    });
+
+    const userResponse = await axios.get(`https://bbbexpresswhatsappsender.onrender.com/api/users/get-user/${user.sub}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    });
+
+    const userData = userResponse?.data;
+
+    // Hacer una única petición para recuperar todos los unreadCounts actualizados
+    try {
+      const token = await getAccessTokenSilently();
+      const conversationIds = filteredConversations.map(conv => conv._id);
+      const response = await axios.post('https://bbbexpresswhatsappsender.onrender.com/api/conversations/unread-messages', {
+        userId: user.sub,
+        conversationIds,
+        client: userData.client,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      // Actualizamos todos los unreadCounts
+      setUnreadCounts(response.data.unreadCounts);
+    } catch (error) {
+      console.error('Error al obtener mensajes no leídos:', error);
+    }
+  });
+
+    return () => {
+        socket.off('connect');
+        socket.off('newMessage');
+    };
+  }, [selectedConversation, getAccessTokenSilently, user.sub, filteredConversations]);
+
+
 
   useEffect(() => {
     // Filtrar conversaciones cuando cambia el término de búsqueda
     const filtered = conversations.filter(conversation =>
-      conversation.username.toLowerCase().includes(searchTerm.toLowerCase())
+      conversation.username?.toLowerCase().includes(searchTerm?.toLowerCase())
     );
     setFilteredConversations(filtered);
   }, [searchTerm, conversations]);
@@ -136,8 +198,43 @@ const ChatApp = () => {
     );
   }
 
-  const handleSelectConversation = (conversation) => {
+  const handleSelectConversation = async (conversation) => {
     setSelectedConversation(conversation);
+
+    const now = new Date();
+
+    try {
+      const token = await getAccessTokenSilently();
+      // Actualizar el lastReadTimestamp en el servidor o en la base de datos
+      await axios.post('https://bbbexpresswhatsappsender.onrender.com/api/conversations/update-read-status', {
+        userId: user.sub,
+        conversationId: conversation._id
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+
+      // Actualizar el estado local para reflejar el cambio en la UI
+      const updatedConversations = conversations.map(conv =>
+        conv._id === conversation._id ? { ...conv, lastReadTimestamp: now } : conv
+      );
+      setConversations(updatedConversations);
+
+      const updatedFilteredConversations = filteredConversations.map(conv =>
+        conv._id === conversation._id ? { ...conv, lastReadTimestamp: now } : conv
+      );
+      setFilteredConversations(updatedFilteredConversations);
+
+
+      // Restablecer el conteo de mensajes no leídos
+      setUnreadCounts((prevCounts) => ({
+        ...prevCounts,
+        [conversation._id]: 0
+      }));
+    } catch (error) {
+      console.error('Error al actualizar el estado de lectura:', error);
+    }
   };
 
   const handleSearch = (term) => {
@@ -157,6 +254,7 @@ const ChatApp = () => {
             selectUser={handleSelectConversation}
             selectedUser={selectedConversation}
             onSearch={handleSearch}
+            unreadCounts={unreadCounts}
           />
         )
       ) : (
@@ -167,6 +265,7 @@ const ChatApp = () => {
             selectUser={handleSelectConversation}
             selectedUser={selectedConversation}
             onSearch={handleSearch}
+            unreadCounts={unreadCounts}
           />
           <div className="flex w-2/3">
             <ChatWindow selectedUser={selectedConversation} />
