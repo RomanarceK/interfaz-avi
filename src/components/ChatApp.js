@@ -96,47 +96,43 @@ const ChatApp = () => {
     });
 
     socket.on('newMessage', async (data) => {
-        const token = await getAccessTokenSilently();
-
-        setConversations((prevConversations) => {
-          return prevConversations.map((conversation) => {
-              if (conversation._id === data.conversationId) {
-                const updatedContent = [...conversation.content, ...data.messages];
-                
-                return {
-                    ...conversation,
-                    content: updatedContent
-                };
-              }
-              return conversation;
-          });
-        });
-
-        setFilteredConversations((prevConversations) => {
-          return prevConversations.map((conversation) => {
-            if (conversation._id === data.conversationId) {
-              const updatedContent = [...conversation.content, ...data.messages];
-              
-              return {
-                  ...conversation,
-                  content: updatedContent
-              };
-            }
-            return conversation;
-        });
-    });
-
-    const userResponse = await axios.get(`https://bbbexpresswhatsappsender.onrender.com/api/users/get-user/${user.sub}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      }
-    });
-
-    const userData = userResponse?.data;
-
-    // Hacer una única petición para recuperar todos los unreadCounts actualizados
-    try {
       const token = await getAccessTokenSilently();
+  
+      setConversations((prevConversations) => {
+        return prevConversations.map((conversation) => {
+          if (conversation._id === data.conversationId) {
+            const updatedContent = [...conversation.content, ...data.messages];
+            return {
+              ...conversation,
+              content: updatedContent
+            };
+          }
+          return conversation;
+        }).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+      });
+  
+      setFilteredConversations((prevConversations) => {
+        return prevConversations.map((conversation) => {
+          if (conversation._id === data.conversationId) {
+            const updatedContent = [...conversation.content, ...data.messages];
+            return {
+              ...conversation,
+              content: updatedContent
+            };
+          }
+          return conversation;
+        }).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+      });
+  
+      const userResponse = await axios.get(`https://bbbexpresswhatsappsender.onrender.com/api/users/get-user/${user.sub}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+  
+      const userData = userResponse?.data;
+  
+      // Actualizamos los unreadCounts como antes
       const conversationIds = filteredConversations.map(conv => conv._id);
       const response = await axios.post('https://bbbexpresswhatsappsender.onrender.com/api/conversations/unread-messages', {
         userId: user.sub,
@@ -147,17 +143,13 @@ const ChatApp = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      
-      // Actualizamos todos los unreadCounts
+  
       setUnreadCounts(response.data.unreadCounts);
-    } catch (error) {
-      console.error('Error al obtener mensajes no leídos:', error);
-    }
-  });
-
+    });
+  
     return () => {
-        socket.off('connect');
-        socket.off('newMessage');
+      socket.off('connect');
+      socket.off('newMessage');
     };
   }, [selectedConversation, getAccessTokenSilently, user.sub, filteredConversations]);
 
