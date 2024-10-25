@@ -88,7 +88,7 @@ const ChatApp = () => {
 
       fetchUserAndConversations();
     }
-  }, [isAuthenticated, user, getAccessTokenSilently]);
+  }, [isAuthenticated, user, getAccessTokenSilently, lastMessageReceived]);
 
 
   useEffect(() => {
