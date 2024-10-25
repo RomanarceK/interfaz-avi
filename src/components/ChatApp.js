@@ -34,6 +34,7 @@ const ChatApp = () => {
   const [unreadCounts, setUnreadCounts] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const isMobile = useMediaQuery('(max-width: 640px)');
+  const [lastMessageReceived, setLastMessageReceived] = useState(null);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -108,7 +109,7 @@ const ChatApp = () => {
             };
           }
           return conversation;
-        }).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+        });
       });
   
       setFilteredConversations((prevConversations) => {
@@ -121,9 +122,11 @@ const ChatApp = () => {
             };
           }
           return conversation;
-        }).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+        });
       });
-  
+      
+      setLastMessageReceived(new Date());
+
       const userResponse = await axios.get(`https://bbbexpresswhatsappsender.onrender.com/api/users/get-user/${user.sub}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -153,7 +156,17 @@ const ChatApp = () => {
     };
   }, [selectedConversation, getAccessTokenSilently, user.sub, filteredConversations]);
 
+  useEffect(() => {
+    if (lastMessageReceived) {
+      setConversations((prevConversations) => {
+        return [...prevConversations].sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+      });
 
+      setFilteredConversations((prevConversations) => {
+        return [...prevConversations].sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+      });
+    }
+  }, [lastMessageReceived]);
 
   useEffect(() => {
     // Filtrar conversaciones cuando cambia el término de búsqueda
