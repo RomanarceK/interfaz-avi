@@ -100,7 +100,7 @@ const ChatApp = () => {
       const token = await getAccessTokenSilently();
   
       setConversations((prevConversations) => {
-        return prevConversations.map((conversation) => {
+        const updatedConversations = prevConversations.map((conversation) => {
           if (conversation._id === data.conversationId) {
             const updatedContent = [...conversation.content, ...data.messages];
             return {
@@ -110,10 +110,12 @@ const ChatApp = () => {
           }
           return conversation;
         });
+
+        return updatedConversations.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
       });
   
-      setFilteredConversations((prevConversations) => {
-        return prevConversations.map((conversation) => {
+      setFilteredConversations((prevFiltered) => {
+        const updatedFilteredConversations = prevFiltered.map((conversation) => {
           if (conversation._id === data.conversationId) {
             const updatedContent = [...conversation.content, ...data.messages];
             return {
@@ -123,6 +125,8 @@ const ChatApp = () => {
           }
           return conversation;
         });
+
+        return updatedFilteredConversations.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
       });
       
       setLastMessageReceived(new Date());
@@ -161,9 +165,9 @@ const ChatApp = () => {
       setConversations((prevConversations) => {
         return [...prevConversations].sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
       });
-
-      setFilteredConversations((prevConversations) => {
-        return [...prevConversations].sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+  
+      setFilteredConversations((prevFiltered) => {
+        return [...prevFiltered].sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
       });
     }
   }, [lastMessageReceived]);
