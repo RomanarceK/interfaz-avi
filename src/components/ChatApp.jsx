@@ -6,7 +6,7 @@ import axios from 'axios';
 import NoAuthMessage from './NoAuthMessage';
 import { io } from 'socket.io-client';
 
-const socket = io('https://bbbexpresswhatsappsender.onrender.com');
+const socket = io('https://avi-flyup.ar');
 
 function useMediaQuery(query) {
   const [matches, setMatches] = useState(false);
@@ -182,7 +182,7 @@ const ChatApp = () => {
 
   if (loading || isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-100 h-screen w-full">
+      <div className="flex items-center justify-center bg-gray-100 h-screen w-full">
         <div className="text-center">
           <div className="loader ease-linear rounded-full border-4 border-t-4 border-blue-400 h-12 w-12 m-auto animate-spin"></div>
           <p className="text-xl font-semibold text-gray-700">Cargando...</p>

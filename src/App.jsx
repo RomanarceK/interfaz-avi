@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import ChatApp from './components/ChatApp'; 
+import ChatApp from './components/ChatApp';
+import MetricsDashboard from './components/MetricsDashboard';
 import { useAuth0 } from '@auth0/auth0-react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import CallbackPage from './components/CallbackPage';
@@ -31,10 +32,9 @@ const App = () => {
         <Router>
           <Routes>
             <Route exact path="/" element={<ChatApp/>} />
-            
-            <Route path="/dashboard" element={<div>Dashboard</div>} />
-            
-            {/* Redirige cualquier ruta no existente al chat principal */}
+
+            <Route path="/metrics" element={<MetricsDashboard />} />
+
             <Route path="/callback" element={<CallbackPage/>} />
           </Routes>
         </Router>

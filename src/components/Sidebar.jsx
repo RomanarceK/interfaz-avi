@@ -1,5 +1,6 @@
 import React from 'react';
-import { FaComments, FaUserFriends, FaSignOutAlt } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaComments, FaUserFriends, FaSignOutAlt, FaChartBar } from 'react-icons/fa';
 import Filters from './Filters';
 import { useAuth0 } from '@auth0/auth0-react';
 import { format, isToday, isYesterday, differenceInCalendarDays } from 'date-fns';
@@ -36,6 +37,9 @@ const Sidebar = ({ users, selectUser, selectedUser, onSearch, onFilterChange, un
                     title="Cerrar sesión"
                     className="text-white w-8 h-8 cursor-pointer transition duration-300 ease-in-out hover:text-pink-500 mt-auto"
                 />
+                <Link to="/metrics" title="Métricas">
+                    <FaChartBar className="text-white w-8 h-8 cursor-pointer transition duration-300 ease-in-out hover:text-pink-500" />
+                </Link>
             </div>
 
             <div className="flex-1 bg-indigo-900 text-white flex flex-col h-full">
