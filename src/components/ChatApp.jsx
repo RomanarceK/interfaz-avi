@@ -6,7 +6,7 @@ import axios from 'axios';
 import NoAuthMessage from './NoAuthMessage';
 import { io } from 'socket.io-client';
 
-const socket = io('https://avi-flyup.ar');
+const socket = io('https://bbbexpresswhatsappsender.onrender.com');
 
 function useMediaQuery(query) {
   const [matches, setMatches] = useState(false);
