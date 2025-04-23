@@ -42,11 +42,7 @@ const Sidebar = ({ users, selectUser, selectedUser, onSearch, onFilterChange, un
                 </Link>
             </div>
 
-            <div className="flex-1 bg-indigo-900 text-white flex flex-col h-full">
-                <div className="p-5 shadow-lg bg-indigo-900 w-full border-b border-gray-900 hover:cursor-pointer" onClick={() => window.open('https://flyup.ar', '_blank')}>
-                    <img src="https://flyup.ar/img/Logo-W.png" alt="Logo" className="w-1/2" />
-                </div>
-                
+            <div className="flex-1 bg-indigo-900 text-white flex flex-col h-full">                
                 <div className="pl-4 pr-4 mt-2">
                     <Filters onSearch={onSearch} onFilterChange={onFilterChange} />
                 </div>
