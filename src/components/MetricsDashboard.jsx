@@ -15,7 +15,6 @@ import {
 } from 'recharts';
 import {
   groupMessagesByDay,
-  groupConversationsByDay,
   groupNewUsersByDay,
   groupActiveConversationsByDay
 } from '../utils/metricsUtils';
@@ -42,8 +41,12 @@ const MetricsDashboard = () => {
       try {
         setLoading(true);
         const token = await getAccessTokenSilently();
+        if (!token) {
+          console.error('No se pudo obtener el token de acceso');
+          return;
+        }
         const response = await axios.get(
-          'https://bbbexpresswhatsappsender.onrender.com/api/conversations/get-conversations',
+          'https://aira-api-xm50.onrender.com/api/conversations/get-conversations',
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -90,7 +93,7 @@ const MetricsDashboard = () => {
     <div className="bg-indigo-900 text-white w-full h-screen flex flex-col">
       <div className="flex items-center p-4 border-b border-indigo-800">
         <img
-          src="https://flyup.ar/img/Logo-W.png"
+          src="https://fly-up-ui.onrender.com/img/Logo-W.png"
           alt="Logo"
           className="h-16"
         />

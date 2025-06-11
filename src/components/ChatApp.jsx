@@ -6,7 +6,7 @@ import axios from 'axios';
 import NoAuthMessage from './NoAuthMessage';
 import { io } from 'socket.io-client';
 
-const socket = io('https://bbbexpresswhatsappsender.onrender.com');
+const socket = io('https://aira-api-xm50.onrender.com');
 
 function useMediaQuery(query) {
   const [matches, setMatches] = useState(false);
@@ -44,7 +44,7 @@ const ChatApp = () => {
           const token = await getAccessTokenSilently();
 
           // Recuperar las conversaciones del usuario
-          const conversationsResponse = await axios.get('https://bbbexpresswhatsappsender.onrender.com/api/conversations/get-conversations', {
+          const conversationsResponse = await axios.get('https://aira-api-xm50.onrender.com/api/conversations/get-conversations', {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -54,7 +54,7 @@ const ChatApp = () => {
           setConversations(conversationsData);
           setFilteredConversations(conversationsData);
 
-          const userResponse = await axios.get(`https://bbbexpresswhatsappsender.onrender.com/api/users/get-user/${user.sub}`, {
+          const userResponse = await axios.get(`https://aira-api-xm50.onrender.com/api/users/get-user/${user.sub}`, {
             headers: {
               Authorization: `Bearer ${token}`,
             }
@@ -66,7 +66,7 @@ const ChatApp = () => {
           const conversationIds = conversationsData.map(conv => conv._id);
 
           // Recuperar los unreadCounts para las conversaciones
-          const unreadCountsResponse = await axios.post('https://bbbexpresswhatsappsender.onrender.com/api/conversations/unread-messages', {
+          const unreadCountsResponse = await axios.post('https://aira-api-xm50.onrender.com/api/conversations/unread-messages', {
             userId: user.sub,
             conversationIds,
             client: userData.client,
@@ -131,7 +131,7 @@ const ChatApp = () => {
       
       setLastMessageReceived(new Date());
 
-      const userResponse = await axios.get(`https://bbbexpresswhatsappsender.onrender.com/api/users/get-user/${user.sub}`, {
+      const userResponse = await axios.get(`https://aira-api-xm50.onrender.com/api/users/get-user/${user.sub}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -141,7 +141,7 @@ const ChatApp = () => {
   
       // Actualizamos los unreadCounts como antes
       const conversationIds = filteredConversations.map(conv => conv._id);
-      const response = await axios.post('https://bbbexpresswhatsappsender.onrender.com/api/conversations/unread-messages', {
+      const response = await axios.post('https://aira-api-xm50.onrender.com/api/conversations/unread-messages', {
         userId: user.sub,
         conversationIds,
         client: userData.client,
@@ -215,7 +215,7 @@ const ChatApp = () => {
     try {
       const token = await getAccessTokenSilently();
       // Actualizar el lastReadTimestamp en el servidor o en la base de datos
-      await axios.post('https://bbbexpresswhatsappsender.onrender.com/api/conversations/update-read-status', {
+      await axios.post('https://aira-api-xm50.onrender.com/api/conversations/update-read-status', {
         userId: user.sub,
         conversationId: conversation._id
       }, {
